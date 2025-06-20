@@ -1,9 +1,13 @@
 const MINUTE_MS = 60 * 1000;
 const DAY_MINUTES = 24 * 60;
 
+function joinBasePath(relativePath) {
+  const base = import.meta.env.BASE_URL || '/';
+  return base.replace(/\/$/, '') + '/' + relativePath.replace(/^\//, '');
+}
+
 async function loadSingleColumn(fileName) {
-  const basePath = import.meta.env.BASE_URL || '/';
-  const res = await fetch(basePath + 'data/' + fileName);
+  const res = await fetch(joinBasePath('data/' + fileName));
   const text = await res.text();
   return text
       .trim()
@@ -15,14 +19,14 @@ async function loadSingleColumn(fileName) {
 }
 
 export async function loadData() {
-  const consumptionArr = await loadSingleColumn('Electricity_Profile.csv');
-  const productionArrRaw = await loadSingleColumn('Electricity_Profile_PVProduction.csv');
-  const lightingArr = await loadSingleColumn('Electricity_Profile_GroupLighting.csv');
-  const fridgesArr = await loadSingleColumn('Electricity_Profile_GroupFridges.csv');
-  const electronicsArr = await loadSingleColumn('Electricity_Profile_GroupElectronics.csv');
-  const inductiveArr = await loadSingleColumn('Electricity_Profile_GroupInductive.csv');
-  const otherArr = await loadSingleColumn('Electricity_Profile_GroupOther.csv');
-  const standbyArr = await loadSingleColumn('Electricity_Profile_GroupStandby.csv');
+  const consumptionArr    = await loadSingleColumn('Electricity_Profile.csv');
+  const productionArrRaw  = await loadSingleColumn('Electricity_Profile_PVProduction.csv');
+  const lightingArr       = await loadSingleColumn('Electricity_Profile_GroupLighting.csv');
+  const fridgesArr        = await loadSingleColumn('Electricity_Profile_GroupFridges.csv');
+  const electronicsArr    = await loadSingleColumn('Electricity_Profile_GroupElectronics.csv');
+  const inductiveArr      = await loadSingleColumn('Electricity_Profile_GroupInductive.csv');
+  const otherArr          = await loadSingleColumn('Electricity_Profile_GroupOther.csv');
+  const standbyArr        = await loadSingleColumn('Electricity_Profile_GroupStandby.csv');
 
   const productionArr = productionArrRaw.map(Math.abs);
 
