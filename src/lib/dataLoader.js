@@ -1,8 +1,9 @@
 const MINUTE_MS = 60 * 1000;
-const DAY_MINUTES = 24 * 60; // 1440 dakika
+const DAY_MINUTES = 24 * 60;
 
-async function loadSingleColumn(path) {
-  const res = await fetch(path);
+async function loadSingleColumn(fileName) {
+  const basePath = import.meta.env.BASE_URL || '/';
+  const res = await fetch(basePath + 'data/' + fileName);
   const text = await res.text();
   return text
       .trim()
@@ -14,17 +15,15 @@ async function loadSingleColumn(path) {
 }
 
 export async function loadData() {
-  const consumptionArr = await loadSingleColumn('/data/Electricity_Profile.csv'); // Wh
-  const productionArrRaw  = await loadSingleColumn('/data/Electricity_Profile_PVProduction.csv'); // Wh
+  const consumptionArr = await loadSingleColumn('Electricity_Profile.csv');
+  const productionArrRaw = await loadSingleColumn('Electricity_Profile_PVProduction.csv');
+  const lightingArr = await loadSingleColumn('Electricity_Profile_GroupLighting.csv');
+  const fridgesArr = await loadSingleColumn('Electricity_Profile_GroupFridges.csv');
+  const electronicsArr = await loadSingleColumn('Electricity_Profile_GroupElectronics.csv');
+  const inductiveArr = await loadSingleColumn('Electricity_Profile_GroupInductive.csv');
+  const otherArr = await loadSingleColumn('Electricity_Profile_GroupOther.csv');
+  const standbyArr = await loadSingleColumn('Electricity_Profile_GroupStandby.csv');
 
-  const lightingArr    = await loadSingleColumn('/data/Electricity_Profile_GroupLighting.csv');
-  const fridgesArr     = await loadSingleColumn('/data/Electricity_Profile_GroupFridges.csv');
-  const electronicsArr = await loadSingleColumn('/data/Electricity_Profile_GroupElectronics.csv');
-  const inductiveArr   = await loadSingleColumn('/data/Electricity_Profile_GroupInductive.csv');
-  const otherArr       = await loadSingleColumn('/data/Electricity_Profile_GroupOther.csv');
-  const standbyArr     = await loadSingleColumn('/data/Electricity_Profile_GroupStandby.csv');
-
-  // Negatif üretimleri pozitife çevir
   const productionArr = productionArrRaw.map(Math.abs);
 
   const length = Math.min(
@@ -50,12 +49,11 @@ export async function loadData() {
   for (let i = startIndex; i <= endIndex; i++) {
     const timestamp = startOfYear.getTime() + i * MINUTE_MS;
 
-    // Her zaman Wh kullanıyoruz ama ihtiyaç olduğunda kWh'a bölünecek (örneğin cost hesaplamaları)
     data.push({
       timestamp,
-      consumption: consumptionArr[i],   // Wh
-      production: productionArr[i],     // Wh (pozitif)
-      cost_rate: 1,                      // birim kWh fiyatı
+      consumption: consumptionArr[i],
+      production: productionArr[i],
+      cost_rate: 1,
       categories: {
         lighting: lightingArr[i],
         fridges: fridgesArr[i],
